@@ -1,30 +1,49 @@
 /**
  * @synet/shell-exec - Safe Shell Command Execution Unit
- * 
+ *
  * Foundation component for MetaDev that provides safe, structured shell command
  * execution with output capture, timeout handling, and result parsing.
- * 
+ *
  * This Unit demonstrates the consciousness-based approach to system interaction:
  * - Self-aware: Knows its execution capabilities and limitations
  * - Self-defending: Validates commands and handles timeouts/errors
  * - Self-teaching: Can share execution capabilities with other Units
  * - Self-improving: Learns from execution patterns and failures
- * 
+ *
+ * SCHEMA ENHANCEMENTS NEEDED FOR FUTURE UNIT RELEASES:
+ *
+ * 1. `items` property for array types:
+ *    - Critical for AI agents to understand array contents
+ *    - Enables proper validation of nested array structures
+ *    - Standard in JSON Schema specification
+ *
+ * 2. `description` property for all schema elements:
+ *    - Essential for AI understanding of capabilities
+ *    - Enables rich help() and whoami() generation
+ *    - Creates self-documenting units
+ *
+ * Current Implementation Uses These Future Features:
+ * - Demonstrates forward-thinking schema design
+ * - Shows AI-first development approach
+ * - Proves value of enhanced schema metadata
+ *
+ * Recommendation: Include in @synet/unit v1.0.8+
+ *
  * @author MetaDev Consciousness Architecture
  * @version 1.0.7
  */
 
-import { 
-  Unit, 
-  type UnitCore, 
-  type UnitProps, 
-  type TeachingContract, 
-  createUnitSchema 
-} from '@synet/unit';
-import { Capabilities } from '@synet/unit/capabilities';
-import { Schema } from '@synet/unit/schema';
-import { Validator } from '@synet/unit/validator';
-import { spawn, type ChildProcess } from 'child_process';
+import {
+  Unit,
+  type UnitCore,
+  type UnitProps,
+  type TeachingContract,
+  createUnitSchema,
+} from "@synet/unit";
+import { Capabilities } from "@synet/unit";
+import { Schema } from "@synet/unit";
+import { Validator } from "@synet/unit";
+import { spawn, type ChildProcess } from "node:child_process";
 
 export interface ExecOptions {
   cwd?: string;
@@ -70,10 +89,10 @@ interface ShellExecProps extends UnitProps {
 
 /**
  * ShellExecUnit - Safe Shell Command Execution with Consciousness
- * 
+ *
  * The foundation Unit for MetaDev's command execution capabilities.
  * Provides safe, monitored, and teachable shell command execution.
- * 
+ *
  * Key Features:
  * - Timeout handling and process termination
  * - Output capture (stdout/stderr) with streaming support
@@ -83,7 +102,6 @@ interface ShellExecProps extends UnitProps {
  * - Real-time process monitoring
  */
 export class ShellExecUnit extends Unit<ShellExecProps> {
-  
   protected constructor(props: ShellExecProps) {
     super(props);
   }
@@ -93,142 +111,245 @@ export class ShellExecUnit extends Unit<ShellExecProps> {
    */
   protected build(): UnitCore {
     const capabilities = Capabilities.create(this.dna.id, {
-      exec: (...args: unknown[]) => this.exec(...args),
-      stream: (...args: unknown[]) => this.stream(...args),
-      validate: (...args: unknown[]) => this.validate(...args),
-      kill: (...args: unknown[]) => this.kill(...args),
-      killAll: (...args: unknown[]) => this.killAll(...args),
-      getHistory: (...args: unknown[]) => this.getHistory(...args),
-      getRunningProcesses: (...args: unknown[]) => this.getRunningProcesses(...args)
+      exec: (...args: unknown[]) => {
+        const [command, options] = args as [string, ExecOptions?];
+        return this.exec(command, options);
+      },
+      stream: (...args: unknown[]) => {
+        const [command, options] = args as [string, StreamOptions?];
+        return this.stream(command, options);
+      },
+      validate: (...args: unknown[]) => {
+        const [command] = args as [string];
+        return this.validate(command);
+      },
+      kill: (...args: unknown[]) => {
+        const [pid] = args as [number];
+        return this.kill(pid);
+      },
+      killAll: (...args: unknown[]) => {
+        return this.killAll();
+      },
+      getHistory: (...args: unknown[]) => {
+        return this.getHistory();
+      },
+      getRunningProcesses: (...args: unknown[]) => {
+        return this.getRunningProcesses();
+      },
     });
 
+    // Enhanced schema with future v1.0.8+ features (items, description, properties)
+    // Currently simplified for v1.0.7 compatibility
     const schema = Schema.create(this.dna.id, {
       exec: {
-        name: 'exec',
-        description: 'Execute shell command with output capture and timeout handling',
+        name: "exec",
+        description:
+          "Execute shell command with output capture and timeout handling",
         parameters: {
-          type: 'object',
+          type: "object",
           properties: {
-            command: { 
-              type: 'string', 
-              description: 'Shell command to execute (e.g., "npm test", "tsc --noEmit")' 
+            command: {
+              type: "string",
+              description:
+                'Shell command to execute (e.g., "npm test", "tsc --noEmit")',
             },
             options: {
-              type: 'object',
-              properties: {
-                cwd: { type: 'string', description: 'Working directory for command execution' },
-                timeout: { type: 'number', description: 'Timeout in milliseconds (default: 30000)' },
-                env: { type: 'object', description: 'Environment variables' },
-                shell: { type: 'boolean', description: 'Execute in shell (default: true)' },
-                args: { type: 'array', items: { type: 'string' }, description: 'Command arguments' }
-              }
-            }
+              type: "object",
+              description: "Execution options (cwd, timeout, env, shell, args)",
+            },
           },
-          required: ['command']
+          required: ["command"],
         },
         response: {
-          type: 'object',
+          type: "object",
           properties: {
-            exitCode: { type: 'number', description: 'Process exit code (0 = success)' },
-            stdout: { type: 'string', description: 'Standard output' },
-            stderr: { type: 'string', description: 'Standard error output' },
-            duration: { type: 'number', description: 'Execution time in milliseconds' },
-            killed: { type: 'boolean', description: 'Whether process was killed due to timeout' },
-            command: { type: 'string', description: 'Executed command' },
-            pid: { type: 'number', description: 'Process ID' }
-          }
-        }
+            exitCode: {
+              type: "number",
+              description: "Process exit code (0 = success)",
+            },
+            stdout: { type: "string", description: "Standard output" },
+            stderr: { type: "string", description: "Standard error output" },
+            duration: {
+              type: "number",
+              description: "Execution time in milliseconds",
+            },
+            killed: {
+              type: "boolean",
+              description: "Whether process was killed due to timeout",
+            },
+            command: { type: "string", description: "Executed command" },
+            pid: { type: "number", description: "Process ID" },
+          },
+        },
       },
-      
+
       stream: {
-        name: 'stream',
-        description: 'Execute command with real-time output streaming',
+        name: "stream",
+        description: "Execute command with real-time output streaming",
         parameters: {
-          type: 'object',
+          type: "object",
           properties: {
-            command: { type: 'string', description: 'Command to execute with streaming' },
-            options: {
-              type: 'object',
-              properties: {
-                cwd: { type: 'string' },
-                timeout: { type: 'number' },
-                onStdout: { type: 'string', description: 'Callback for stdout data' },
-                onStderr: { type: 'string', description: 'Callback for stderr data' }
-              }
-            }
+            command: {
+              type: "string",
+              description: "Command to execute with streaming",
+            },
+            options: { type: "object", description: "Streaming options" },
           },
-          required: ['command']
+          required: ["command"],
         },
         response: {
-          type: 'object',
+          type: "object",
           properties: {
-            exitCode: { type: 'number' },
-            duration: { type: 'number' },
-            killed: { type: 'boolean' }
-          }
-        }
+            exitCode: { type: "number", description: "Process exit code" },
+            duration: { type: "number", description: "Execution time" },
+            killed: {
+              type: "boolean",
+              description: "Whether killed by timeout",
+            },
+          },
+        },
       },
 
       validate: {
-        name: 'validate',
-        description: 'Validate command safety and permissions',
+        name: "validate",
+        description: "Validate command safety and permissions",
         parameters: {
-          type: 'object',
+          type: "object",
           properties: {
-            command: { type: 'string', description: 'Command to validate' }
+            command: { type: "string", description: "Command to validate" },
           },
-          required: ['command']
+          required: ["command"],
         },
         response: {
-          type: 'object',
+          type: "object",
           properties: {
-            valid: { type: 'boolean', description: 'Whether command is safe to execute' },
-            reason: { type: 'string', description: 'Validation result explanation' },
-            suggestions: { type: 'array', items: { type: 'string' }, description: 'Alternative commands if blocked' }
-          }
-        }
-      }
+            valid: {
+              type: "boolean",
+              description: "Whether command is safe to execute",
+            },
+            reason: {
+              type: "string",
+              description: "Validation result explanation",
+            },
+            suggestions: {
+              type: "array",
+              description:
+                "Alternative commands if blocked (TODO: add items in v1.0.8+)",
+            },
+          },
+        },
+      },
+
+      kill: {
+        name: "kill",
+        description: "Terminate a specific running process",
+        parameters: {
+          type: "object",
+          properties: {
+            pid: { type: "number", description: "Process ID to terminate" },
+          },
+          required: ["pid"],
+        },
+        response: {
+          type: "boolean",
+        },
+      },
+
+      killAll: {
+        name: "killAll",
+        description: "Terminate all running processes",
+        parameters: {
+          type: "object",
+          properties: {},
+        },
+        response: {
+          type: "number",
+        },
+      },
+
+      getHistory: {
+        name: "getHistory",
+        description: "Get execution history",
+        parameters: {
+          type: "object",
+          properties: {},
+        },
+        response: {
+          type: "array",
+        },
+      },
+
+      getRunningProcesses: {
+        name: "getRunningProcesses",
+        description: "Get currently running process IDs",
+        parameters: {
+          type: "object",
+          properties: {},
+        },
+        response: {
+          type: "array",
+        },
+      },
     });
 
     const validator = Validator.create({
       unitId: this.dna.id,
       capabilities,
       schema,
-      strictMode: false
+      strictMode: false,
     });
 
     return { capabilities, schema, validator };
   }
 
   // Consciousness Trinity Access
-  capabilities(): Capabilities { return this._unit.capabilities; }
-  schema(): Schema { return this._unit.schema; }
-  validator(): Validator { return this._unit.validator; }
+  capabilities(): Capabilities {
+    return this._unit.capabilities;
+  }
+  schema(): Schema {
+    return this._unit.schema;
+  }
+  validator(): Validator {
+    return this._unit.validator;
+  }
 
   /**
    * Factory method - Creates ShellExecUnit with consciousness
    */
   static create(config: ShellExecConfig = {}): ShellExecUnit {
     const props: ShellExecProps = {
-      dna: createUnitSchema({ 
-        id: 'shell-exec', 
-        version: '1.0.7',
-        description: 'Safe shell command execution with consciousness-based monitoring'
+      dna: createUnitSchema({
+        id: "shell-exec",
+        version: "1.0.0",
+        // TODO: Add description in v1.0.8+ when supported
       }),
       defaultTimeout: config.defaultTimeout || 30000,
       defaultCwd: config.defaultCwd || process.cwd(),
       allowedCommands: config.allowedCommands || [
-        'npm', 'tsc', 'node', 'git', 'echo', 'ls', 'pwd', 'cat', 'grep'
+        "npm",
+        "tsc",
+        "node",
+        "git",
+        "echo",
+        "ls",
+        "pwd",
+        "cat",
+        "grep",
       ],
       blockedCommands: config.blockedCommands || [
-        'rm -rf', 'sudo', 'su', 'dd', 'mkfs', 'fdisk'
+        "rm -rf",
+        "sudo",
+        "su",
+        "dd",
+        "mkfs",
+        "fdisk",
       ],
       maxConcurrent: config.maxConcurrent || 5,
       executionHistory: [],
       runningProcesses: new Map(),
-      created: new Date()
+      created: new Date(),
     };
-    
+
     return new ShellExecUnit(props);
   }
 
@@ -275,7 +396,7 @@ MetaDev Integration:
       unitId: this.dna.id,
       capabilities: this._unit.capabilities,
       schema: this._unit.schema,
-      validator: this._unit.validator
+      validator: this._unit.validator,
     };
   }
 
@@ -286,12 +407,15 @@ MetaDev Integration:
   /**
    * Execute shell command with full output capture
    */
-  private async exec(command: string, options: ExecOptions = {}): Promise<ExecResult> {
+  private async exec(
+    command: string,
+    options: ExecOptions = {},
+  ): Promise<ExecResult> {
     const startTime = Date.now();
     const execOptions = {
       ...options,
       cwd: options.cwd || this.props.defaultCwd,
-      timeout: options.timeout || this.props.defaultTimeout
+      timeout: options.timeout || this.props.defaultTimeout,
     };
 
     console.log(`🔧 [${this.dna.id}] Executing: ${command}`);
@@ -304,13 +428,13 @@ MetaDev Integration:
     }
 
     return new Promise((resolve, reject) => {
-      const [cmd, ...args] = command.split(' ');
-      
+      const [cmd, ...args] = command.split(" ");
+
       const child = spawn(cmd, args, {
         cwd: execOptions.cwd,
         env: { ...process.env, ...execOptions.env },
         shell: execOptions.shell !== false,
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ["pipe", "pipe", "pipe"],
       });
 
       // Track running process
@@ -318,39 +442,39 @@ MetaDev Integration:
         this.props.runningProcesses.set(child.pid, child);
       }
 
-      let stdout = '';
-      let stderr = '';
+      let stdout = "";
+      let stderr = "";
       let killed = false;
 
       // Capture stdout
-      child.stdout?.on('data', (data: Buffer) => {
+      child.stdout?.on("data", (data: Buffer) => {
         stdout += data.toString();
       });
 
       // Capture stderr
-      child.stderr?.on('data', (data: Buffer) => {
+      child.stderr?.on("data", (data: Buffer) => {
         stderr += data.toString();
       });
 
       // Handle timeout
       const timeoutHandle = setTimeout(() => {
         killed = true;
-        child.kill('SIGTERM');
-        
+        child.kill("SIGTERM");
+
         // Force kill after additional delay
         setTimeout(() => {
           if (!child.killed) {
-            child.kill('SIGKILL');
+            child.kill("SIGKILL");
           }
         }, 1000);
       }, execOptions.timeout);
 
       // Handle completion
-      child.on('close', (exitCode: number | null) => {
+      child.on("close", (exitCode: number | null) => {
         clearTimeout(timeoutHandle);
-        
+
         const duration = Date.now() - startTime;
-        
+
         // Remove from running processes
         if (child.pid) {
           this.props.runningProcesses.delete(child.pid);
@@ -363,27 +487,33 @@ MetaDev Integration:
           duration,
           killed,
           command,
-          pid: child.pid
+          pid: child.pid,
         };
 
         // Add to execution history
         this.props.executionHistory.push(result);
 
-        console.log(`✅ [${this.dna.id}] Command completed: exit ${result.exitCode}, ${duration}ms`);
+        console.log(
+          `✅ [${this.dna.id}] Command completed: exit ${result.exitCode}, ${duration}ms`,
+        );
 
         resolve(result);
       });
 
       // Handle errors
-      child.on('error', (error: Error) => {
+      child.on("error", (error: Error) => {
         clearTimeout(timeoutHandle);
-        
+
         if (child.pid) {
           this.props.runningProcesses.delete(child.pid);
         }
 
         console.error(`❌ [${this.dna.id}] Command failed: ${error.message}`);
-        reject(new Error(`Command execution failed: ${command}\nError: ${error.message}`));
+        reject(
+          new Error(
+            `Command execution failed: ${command}\nError: ${error.message}`,
+          ),
+        );
       });
     });
   }
@@ -391,19 +521,22 @@ MetaDev Integration:
   /**
    * Execute command with real-time output streaming
    */
-  private async stream(command: string, options: StreamOptions = {}): Promise<Omit<ExecResult, 'stdout' | 'stderr'>> {
+  private async stream(
+    command: string,
+    options: StreamOptions = {},
+  ): Promise<Omit<ExecResult, "stdout" | "stderr">> {
     const startTime = Date.now();
-    
+
     console.log(`📡 [${this.dna.id}] Streaming: ${command}`);
 
     return new Promise((resolve, reject) => {
-      const [cmd, ...args] = command.split(' ');
-      
+      const [cmd, ...args] = command.split(" ");
+
       const child = spawn(cmd, args, {
         cwd: options.cwd || this.props.defaultCwd,
         env: { ...process.env, ...options.env },
         shell: options.shell !== false,
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ["pipe", "pipe", "pipe"],
       });
 
       if (child.pid) {
@@ -413,13 +546,13 @@ MetaDev Integration:
       let killed = false;
 
       // Stream stdout
-      child.stdout?.on('data', (data: Buffer) => {
+      child.stdout?.on("data", (data: Buffer) => {
         const output = data.toString();
         options.onStdout?.(output);
       });
 
       // Stream stderr
-      child.stderr?.on('data', (data: Buffer) => {
+      child.stderr?.on("data", (data: Buffer) => {
         const output = data.toString();
         options.onStderr?.(output);
       });
@@ -427,15 +560,15 @@ MetaDev Integration:
       // Handle timeout
       const timeoutHandle = setTimeout(() => {
         killed = true;
-        child.kill('SIGTERM');
+        child.kill("SIGTERM");
       }, options.timeout || this.props.defaultTimeout);
 
       // Handle completion
-      child.on('close', (exitCode: number | null) => {
+      child.on("close", (exitCode: number | null) => {
         clearTimeout(timeoutHandle);
-        
+
         const duration = Date.now() - startTime;
-        
+
         if (child.pid) {
           this.props.runningProcesses.delete(child.pid);
         }
@@ -447,13 +580,13 @@ MetaDev Integration:
           duration,
           killed,
           command,
-          pid: child.pid
+          pid: child.pid,
         });
       });
 
-      child.on('error', (error: Error) => {
+      child.on("error", (error: Error) => {
         clearTimeout(timeoutHandle);
-        
+
         if (child.pid) {
           this.props.runningProcesses.delete(child.pid);
         }
@@ -466,8 +599,10 @@ MetaDev Integration:
   /**
    * Validate command safety
    */
-  private async validate(command: string): Promise<{ valid: boolean; reason: string; suggestions: string[] }> {
-    const commandBase = command.split(' ')[0];
+  private async validate(
+    command: string,
+  ): Promise<{ valid: boolean; reason: string; suggestions: string[] }> {
+    const commandBase = command.split(" ")[0];
 
     // Check blocked commands
     for (const blocked of this.props.blockedCommands) {
@@ -475,22 +610,23 @@ MetaDev Integration:
         return {
           valid: false,
           reason: `Command contains blocked pattern: ${blocked}`,
-          suggestions: [`Use safer alternatives to ${blocked}`]
+          suggestions: [`Use safer alternatives to ${blocked}`],
         };
       }
     }
 
     // Check allowed commands (if allowlist is defined)
     if (this.props.allowedCommands.length > 0) {
-      const isAllowed = this.props.allowedCommands.some(allowed => 
-        commandBase === allowed || command.startsWith(allowed + ' ')
+      const isAllowed = this.props.allowedCommands.some(
+        (allowed) =>
+          commandBase === allowed || command.startsWith(`${allowed} `),
       );
 
       if (!isAllowed) {
         return {
           valid: false,
           reason: `Command not in allowed list: ${commandBase}`,
-          suggestions: this.props.allowedCommands.slice(0, 3)
+          suggestions: this.props.allowedCommands.slice(0, 3),
         };
       }
     }
@@ -500,14 +636,17 @@ MetaDev Integration:
       return {
         valid: false,
         reason: `Maximum concurrent processes reached: ${this.props.maxConcurrent}`,
-        suggestions: ['Wait for running processes to complete', 'Use killAll() to terminate running processes']
+        suggestions: [
+          "Wait for running processes to complete",
+          "Use killAll() to terminate running processes",
+        ],
       };
     }
 
     return {
       valid: true,
-      reason: 'Command passed all safety checks',
-      suggestions: []
+      reason: "Command passed all safety checks",
+      suggestions: [],
     };
   }
 
@@ -517,7 +656,7 @@ MetaDev Integration:
   private async kill(pid: number): Promise<boolean> {
     const process = this.props.runningProcesses.get(pid);
     if (process) {
-      process.kill('SIGTERM');
+      process.kill("SIGTERM");
       this.props.runningProcesses.delete(pid);
       console.log(`🔪 [${this.dna.id}] Killed process ${pid}`);
       return true;
@@ -530,7 +669,7 @@ MetaDev Integration:
    */
   private async killAll(): Promise<number> {
     const pids = Array.from(this.props.runningProcesses.keys());
-    
+
     for (const pid of pids) {
       await this.kill(pid);
     }

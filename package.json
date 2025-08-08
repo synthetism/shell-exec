@@ -17,7 +17,7 @@
     "build": "tsc",
     "test": "vitest run",
     "dev:test": "vitest",
-    "demo": "tsx demo/shell-exec.demo.ts",
+    "demo": "tsx demo/demo-simple.ts",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "coverage": "vitest run --coverage",
@@ -51,10 +51,8 @@
     "shell",
     "command",
     "execution",
-    "unit-architecture",
-    "consciousness",
-    "metadev",
-    "foundation"
+    "unit architecture",
+    "metadev"
   ],
   "engines": {
     "node": ">=18.0.0"
