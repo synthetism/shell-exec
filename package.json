@@ -1,6 +1,6 @@
 {
   "name": "@synet/shell-exec",
-  "version": "1.0.0", 
+  "version": "1.0.1",
   "description": "Safe shell command execution with Unit Architecture - foundation component for MetaDev",
   "type": "module",
   "main": "dist/index.js",
@@ -36,8 +36,8 @@
     "release:minor": "npm run version:minor && npm run publish:prod",
     "release:major": "npm run version:major && npm run publish:prod"
   },
-   "dependencies": {
-    "@synet/unit": "^1.0.7"
+  "dependencies": {
+    "@synet/unit": "^1.0.8"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

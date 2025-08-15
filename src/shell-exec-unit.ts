@@ -1,36 +1,8 @@
 /**
- * @synet/shell-exec - Safe Shell Command Execution Unit
+ * @synet/shell-exec - Safe Shell Command Execution Unit as AI tool
  *
- * Foundation component for MetaDev that provides safe, structured shell command
- * execution with output capture, timeout handling, and result parsing.
- *
- * This Unit demonstrates the consciousness-based approach to system interaction:
- * - Self-aware: Knows its execution capabilities and limitations
- * - Self-defending: Validates commands and handles timeouts/errors
- * - Self-teaching: Can share execution capabilities with other Units
- * - Self-improving: Learns from execution patterns and failures
- *
- * SCHEMA ENHANCEMENTS NEEDED FOR FUTURE UNIT RELEASES:
- *
- * 1. `items` property for array types:
- *    - Critical for AI agents to understand array contents
- *    - Enables proper validation of nested array structures
- *    - Standard in JSON Schema specification
- *
- * 2. `description` property for all schema elements:
- *    - Essential for AI understanding of capabilities
- *    - Enables rich help() and whoami() generation
- *    - Creates self-documenting units
- *
- * Current Implementation Uses These Future Features:
- * - Demonstrates forward-thinking schema design
- * - Shows AI-first development approach
- * - Proves value of enhanced schema metadata
- *
- * Recommendation: Include in @synet/unit v1.0.8+
- *
- * @author MetaDev Consciousness Architecture
- * @version 1.0.7
+ * @author Shell Exec for AI
+ * @version 1.0.1
  */
 
 import {
@@ -87,20 +59,7 @@ interface ShellExecProps extends UnitProps {
   runningProcesses: Map<number, ChildProcess>;
 }
 
-/**
- * ShellExecUnit - Safe Shell Command Execution with Consciousness
- *
- * The foundation Unit for MetaDev's command execution capabilities.
- * Provides safe, monitored, and teachable shell command execution.
- *
- * Key Features:
- * - Timeout handling and process termination
- * - Output capture (stdout/stderr) with streaming support
- * - Command validation and security filtering
- * - Execution history and pattern learning
- * - Teaching contract for capability sharing
- * - Real-time process monitoring
- */
+
 export class ShellExecUnit extends Unit<ShellExecProps> {
   protected constructor(props: ShellExecProps) {
     super(props);
@@ -320,7 +279,7 @@ export class ShellExecUnit extends Unit<ShellExecProps> {
     const props: ShellExecProps = {
       dna: createUnitSchema({
         id: "shell-exec",
-        version: "1.0.0",
+        version: "1.0.1",
         // TODO: Add description in v1.0.8+ when supported
       }),
       defaultTimeout: config.defaultTimeout || 30000,
